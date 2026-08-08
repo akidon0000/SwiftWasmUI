@@ -11,27 +11,37 @@ SwiftUI の公開 API は膨大(ビュー・モディファイア合わせて数
 「典型的な CRUD + ナビゲーション付きのモバイル風 Web アプリが、SwiftUI のコードを
 ほぼコピペで動かせる」状態。
 
+## 優先順位の根拠
+
+実在するプロダクション SwiftUI アプリ(数百ビュー規模)の API 使用頻度を集計し、
+頻度の高いものから実装する。上位は `Text` / `Button` / `ForEach` / `VStack` /
+`.padding` / `.frame` / `.foregroundColor` / `.alert` / `.buttonStyle` /
+`ScrollView` / `NavigationLink` / `@Published` / `@State` など。
+
 ## Phase 0 — 済み ✅
 
 | 分類 | API |
 |---|---|
 | コア | `View` / `@ViewBuilder`(`if`/`else`) / `App` |
 | 状態 | `@State` / `Binding` |
-| ビュー | `Text` `Button` `TextField` `Toggle` `List` `ForEach` `Color` `Image(systemName:)` `Spacer` |
+| ビュー | `Text` `Button` `TextField` `Toggle` `List` `ForEach` `Color` `Image(systemName:)` `Spacer` `ScrollView` `Divider` `ProgressView` |
+| Shape | `Rectangle` `RoundedRectangle` `Circle` `Capsule` + `.fill` |
 | レイアウト | `VStack` `HStack` `ZStack` |
-| モディファイア | `.padding` `.font` `.foregroundColor` `.background` `.frame` `.cornerRadius` `.glassEffect` |
+| モディファイア | `.padding` `.font` `.foregroundColor` / `.foregroundStyle` `.background` `.frame` `.cornerRadius` `.glassEffect`(ダークモード追従) `.opacity` `.disabled` `.shadow` `.border` `.clipped` `.lineLimit` `.multilineTextAlignment` `.onTapGesture` `.onAppear` |
 
 ## Phase 1 — 基本の穴埋め(単画面アプリが不自由なく書ける)
 
-- [ ] `ScrollView`
-- [ ] `Divider`
+- [x] `ScrollView` / `Divider` / `ProgressView`
+- [x] 基本 Shape(`Rectangle` / `RoundedRectangle` / `Circle` / `Capsule` + `.fill`)
+- [x] `.opacity` / `.shadow` / `.border` / `.clipped`
+- [x] `.disabled` / `.onTapGesture` / `.onAppear`
 - [ ] `Label` / `Link`
 - [ ] `Slider` / `Stepper` / `Picker`
 - [ ] `SecureField` / `TextEditor`
-- [ ] `LinearGradient` / `RoundedRectangle` / `Circle`(基本 Shape)
-- [ ] `.opacity` / `.shadow` / `.border` / `.clipped`
-- [ ] `.disabled` / `.onTapGesture` / `.onAppear`
-- [ ] `@Environment(\.colorScheme)` とダークモード対応(`.glassEffect` 含む)
+- [ ] `LinearGradient`(ビューとして。`Color(css:)` の生 CSS 指定は可能)
+- [ ] `.overlay` / `.clipShape` / `.contentShape` / `.fixedSize`
+- [ ] `.buttonStyle`(bordered / borderedProminent / plain)
+- [ ] `@Environment(\.colorScheme)` とアプリ側ダークモード対応
 
 ## Phase 2 — 状態管理(SwiftUI らしいデータフロー)
 
