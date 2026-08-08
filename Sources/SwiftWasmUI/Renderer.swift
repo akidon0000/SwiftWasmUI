@@ -182,8 +182,35 @@ public extension App {
         var style = document.createElement("style")
         style.textContent = .string("""
         ._wasmui-fill > * { flex: 1 1 auto; min-height: 0; align-self: stretch; }
+        /* モディファイアのラッパーは flex column として高さ制約を子へ伝える。
+           min-height はデフォルト(auto)のまま = コンテンツ未満に縮まない。
+           スクロール可能な要素(ScrollView/List)だけが自身で min-height: 0 を持ち、
+           そこを境に min-content の連鎖が切れてスクロールが成立する。 */
+        ._wasmui-styled { display: flex; flex-direction: column; }
+        ._wasmui-styled > * { flex: 1 1 auto; }
+        /* スクロールコンテナを含む祖先だけ縮小を許可する。
+           これがないと祖先の min-height: auto がコンテンツ高を保持してしまい
+           スクロールが発生しない。含まない要素は auto のまま = 潰れない。 */
+        #app :has(._wasmui-scroll) { min-height: 0; }
         ._wasmui-zlayer { pointer-events: none; }
         ._wasmui-zlayer > * { pointer-events: auto; }
+        @keyframes _wasmui-spin { to { transform: rotate(360deg); } }
+        ._wasmui-glass {
+            background: rgba(255, 255, 255, 0.55);
+            -webkit-backdrop-filter: blur(24px) saturate(1.8);
+            backdrop-filter: blur(24px) saturate(1.8);
+            border: 0.5px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        @media (prefers-color-scheme: dark) {
+            ._wasmui-glass {
+                background: rgba(44, 44, 48, 0.55);
+                border-color: rgba(255, 255, 255, 0.16);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5),
+                            inset 0 1px 0 rgba(255, 255, 255, 0.14);
+            }
+        }
         """)
         _ = document.head.appendChild(style)
 

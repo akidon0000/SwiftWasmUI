@@ -39,6 +39,123 @@ public struct Image: _PrimitiveView, _DOMPrimitive {
     }
 }
 
+// MARK: - ScrollView
+
+public struct ScrollView: _PrimitiveView, _DOMPrimitive {
+    public enum Axis {
+        case vertical, horizontal
+    }
+
+    let axis: Axis
+    let content: any View
+
+    public init(_ axis: Axis = .vertical, @ViewBuilder content: () -> some View) {
+        self.axis = axis
+        self.content = content()
+    }
+
+    func render(_ ctx: RenderContext) {
+        let overflow = axis == .vertical
+            ? "overflow-y: auto; overflow-x: hidden;"
+            : "overflow-x: auto; overflow-y: hidden;"
+        let direction = axis == .vertical ? "column" : "row"
+        let el = DOM.element(
+            "div",
+            css: "display: flex; flex-direction: \(direction); \(overflow) "
+                + "flex: 1 1 auto; align-self: stretch; min-height: 0; min-width: 0; "
+                + "-webkit-overflow-scrolling: touch;",
+            className: "_wasmui-scroll",
+            in: ctx.parent
+        )
+        ctx.walkChild(content, into: el, index: 0)
+    }
+}
+
+// MARK: - Divider / ProgressView
+
+public struct Divider: _PrimitiveView, _DOMPrimitive {
+    public init() {}
+
+    func render(_ ctx: RenderContext) {
+        _ = DOM.element(
+            "div",
+            css: "align-self: stretch; flex: 0 0 auto; "
+                + "min-height: 1px; height: 1px; background: rgba(60, 60, 67, 0.29);",
+            in: ctx.parent
+        )
+    }
+}
+
+/// iOS の UIActivityIndicatorView 風スピナー
+public struct ProgressView: _PrimitiveView, _DOMPrimitive {
+    public init() {}
+
+    func render(_ ctx: RenderContext) {
+        let el = DOM.element(
+            "div",
+            css: "width: 20px; height: 20px; border-radius: 50%; "
+                + "border: 2.5px solid rgba(60, 60, 67, 0.25); border-top-color: rgba(60, 60, 67, 0.7); "
+                + "animation: _wasmui-spin 0.9s linear infinite;",
+            in: ctx.parent
+        )
+        _ = el
+    }
+}
+
+// MARK: - Shape
+
+/// 固有サイズを持たない点は SwiftUI と同じ(.frame で指定するか親に合わせて広がる)
+public struct Rectangle: _PrimitiveView, _DOMPrimitive {
+    public init() {}
+
+    func render(_ ctx: RenderContext) {
+        _ = DOM.element("div", css: Self.shapeCSS, in: ctx.parent)
+    }
+
+    static let shapeCSS =
+        "background: currentColor; width: 100%; height: 100%; flex: 1 1 auto; align-self: stretch;"
+}
+
+public struct RoundedRectangle: _PrimitiveView, _DOMPrimitive {
+    let cornerRadius: Double
+
+    public init(cornerRadius: Double) {
+        self.cornerRadius = cornerRadius
+    }
+
+    func render(_ ctx: RenderContext) {
+        _ = DOM.element(
+            "div",
+            css: Rectangle.shapeCSS + " border-radius: \(cornerRadius)px;",
+            in: ctx.parent
+        )
+    }
+}
+
+public struct Circle: _PrimitiveView, _DOMPrimitive {
+    public init() {}
+
+    func render(_ ctx: RenderContext) {
+        _ = DOM.element(
+            "div",
+            css: Rectangle.shapeCSS + " border-radius: 50%; aspect-ratio: 1;",
+            in: ctx.parent
+        )
+    }
+}
+
+public struct Capsule: _PrimitiveView, _DOMPrimitive {
+    public init() {}
+
+    func render(_ ctx: RenderContext) {
+        _ = DOM.element(
+            "div",
+            css: Rectangle.shapeCSS + " border-radius: 9999px;",
+            in: ctx.parent
+        )
+    }
+}
+
 // MARK: - Button
 
 public struct Button: _PrimitiveView, _DOMPrimitive {
@@ -210,6 +327,7 @@ public struct List: _PrimitiveView, _DOMPrimitive {
         let el = DOM.element(
             "div",
             css: "overflow-y: auto; flex: 1 1 0; min-height: 0; width: 100%; align-self: stretch;",
+            className: "_wasmui-scroll",
             in: ctx.parent
         )
         for (i, row) in DOM.flatten(content).enumerated() {

@@ -19,12 +19,16 @@ struct RootView: View {
                 if tab == 0 {
                     CounterView()
                 } else {
-                    TodoView()
+                    if tab == 1 {
+                        TodoView()
+                    } else {
+                        GalleryView()
+                    }
                 }
             }
             .padding(top: 72, bottom: 110)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            NavigationBarView(title: tab == 0 ? "Counter" : "Todo")
+            NavigationBarView(title: ["Counter", "Todo", "Gallery"][tab])
             TabBarView(selection: $tab)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -57,6 +61,7 @@ struct TabBarView: View {
             HStack(spacing: 0) {
                 tabButton("number", "Counter", index: 0)
                 tabButton("list.bullet", "Todo", index: 1)
+                tabButton("square.grid.2x2", "Gallery", index: 2)
             }
             .glassEffect(cornerRadius: 32)
             .padding(18)
@@ -134,6 +139,59 @@ struct TodoView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+// MARK: - Gallery(新規 API のショーケース)
+
+struct GalleryView: View {
+    @State var loading = false
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Shapes").font(.headline)
+                HStack(spacing: 12) {
+                    RoundedRectangle(cornerRadius: 12).fill(.blue)
+                        .frame(width: 56, height: 56)
+                    Circle().fill(.green)
+                        .frame(width: 56, height: 56)
+                    Capsule().fill(.red)
+                        .frame(width: 80, height: 36)
+                    Rectangle().fill(.gray)
+                        .frame(width: 56, height: 56)
+                        .opacity(0.4)
+                }
+                Divider()
+                Text("Progress").font(.headline)
+                HStack(spacing: 12) {
+                    ProgressView()
+                    Button(loading ? "Stop" : "Start") { loading = !loading }
+                        .disabled(false)
+                }
+                Divider()
+                Text("Long text with lineLimit(2)").font(.headline)
+                Text("SwiftWasmUI renders SwiftUI-shaped code to the browser DOM. "
+                    + "This paragraph is intentionally long so that the lineLimit "
+                    + "modifier has something to clamp — you should see exactly two "
+                    + "lines followed by an ellipsis.")
+                    .lineLimit(2)
+                Divider()
+                Text("Tap gesture").font(.headline)
+                RoundedRectangle(cornerRadius: 12).fill(loading ? .green : .gray)
+                    .frame(width: 120, height: 44)
+                    .onTapGesture { loading = !loading }
+                    .shadow(radius: 6, y: 2)
+                // ScrollView 確認用の水増しコンテンツ
+                Divider()
+                Text("Scroll me").font(.headline)
+                ForEach(0..<12, id: \.self) { i in
+                    Text("Row \(i)")
+                        .padding(8)
+                }
+            }
+            .padding()
+        }
     }
 }
 

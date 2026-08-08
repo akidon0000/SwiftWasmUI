@@ -56,8 +56,56 @@ public struct _StyledView: _PrimitiveView, _DOMPrimitive {
     var className = ""
 
     func render(_ ctx: RenderContext) {
-        let el = DOM.element("div", css: css, className: className, in: ctx.parent)
+        // flex column にして親からの高さ制約を子へ伝播させる(._wasmui-styled)。
+        // これがないと ScrollView 等が祖先のどこかの block div で高さを失う。
+        let el = DOM.element(
+            "div",
+            css: css,
+            className: className.isEmpty ? "_wasmui-styled" : "_wasmui-styled " + className,
+            in: ctx.parent
+        )
         ctx.walkChild(content, into: el, index: 0)
+    }
+}
+
+/// イベント系モディファイア(.onTapGesture / .onAppear)のラッパー
+public struct _EventView: _PrimitiveView, _DOMPrimitive {
+    let content: any View
+    var onTap: (() -> ())?
+    var onAppear: (() -> ())?
+
+    func render(_ ctx: RenderContext) {
+        let el = DOM.element("div", in: ctx.parent)
+        if let onTap {
+            var mutable = JSValue.object(el)
+            mutable.onclick = .object(JSClosure { _ in
+                onTap()
+                return .undefined
+            })
+        }
+        ctx.walkChild(content, into: el, index: 0)
+        // render 完了 = DOM に載った時点を「appear」とみなす
+        onAppear?()
+    }
+}
+
+// MARK: - Shape
+
+public protocol Shape: View {}
+
+extension Rectangle: Shape {}
+extension RoundedRectangle: Shape {}
+extension Circle: Shape {}
+extension Capsule: Shape {}
+
+public extension Shape {
+    /// Shape は currentColor で塗られるため、色を差し込むだけでよい
+    func fill(_ color: Color) -> some View {
+        _StyledView(
+            content: self,
+            css: "display: flex; flex: 1 1 auto; align-self: stretch; min-height: 0; "
+                + "color: \(color.css);"
+        )
     }
 }
 
@@ -90,21 +138,71 @@ public extension View {
 
     /// iOS 26 の Liquid Glass 風マテリアル。
     /// backdrop-filter のぼかし + 半透明背景 + 上端ハイライトで近似する。
+    /// 色はグローバルスタイルの ._wasmui-glass が持ち、ダークモードにも追従する。
     func glassEffect(cornerRadius: Double = 28) -> some View {
         _StyledView(
             content: self,
-            css: """
-            background: rgba(255, 255, 255, 0.55);
-            -webkit-backdrop-filter: blur(24px) saturate(1.8);
-            backdrop-filter: blur(24px) saturate(1.8);
-            border-radius: \(cornerRadius)px;
-            border: 0.5px solid rgba(255, 255, 255, 0.7);
-            box-shadow:
-                0 8px 24px rgba(0, 0, 0, 0.12),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9);
-            overflow: hidden;
-            """
+            css: "border-radius: \(cornerRadius)px; overflow: hidden;",
+            className: "_wasmui-glass"
         )
+    }
+
+    func opacity(_ value: Double) -> some View {
+        _StyledView(content: self, css: "opacity: \(value);")
+    }
+
+    /// SwiftUI と同様、操作を無効化しつつ薄く表示する
+    func disabled(_ disabled: Bool = true) -> some View {
+        _StyledView(
+            content: self,
+            css: disabled ? "pointer-events: none; opacity: 0.4;" : ""
+        )
+    }
+
+    func shadow(radius: Double, x: Double = 0, y: Double = 0) -> some View {
+        _StyledView(
+            content: self,
+            css: "filter: drop-shadow(\(x)px \(y)px \(radius)px rgba(0, 0, 0, 0.33));"
+        )
+    }
+
+    func border(_ color: Color, width: Double = 1) -> some View {
+        _StyledView(content: self, css: "border: \(width)px solid \(color.css);")
+    }
+
+    func clipped() -> some View {
+        _StyledView(content: self, css: "overflow: hidden;")
+    }
+
+    func lineLimit(_ number: Int) -> some View {
+        _StyledView(
+            content: self,
+            css: "display: -webkit-box; -webkit-line-clamp: \(number); "
+                + "-webkit-box-orient: vertical; overflow: hidden;"
+        )
+    }
+
+    func multilineTextAlignment(_ alignment: HorizontalAlignment) -> some View {
+        let value = switch alignment {
+        case .leading: "left"
+        case .center: "center"
+        case .trailing: "right"
+        }
+        return _StyledView(content: self, css: "text-align: \(value);")
+    }
+
+    /// foregroundColor の新 API 名(色のみ対応)
+    func foregroundStyle(_ color: Color) -> some View {
+        foregroundColor(color)
+    }
+
+    func onTapGesture(perform action: @escaping () -> ()) -> some View {
+        _EventView(content: self, onTap: action)
+    }
+
+    /// 描画された時点で一度呼ばれる(全再構築レンダリングでは再描画ごとに呼ばれる点に注意)
+    func onAppear(perform action: @escaping () -> ()) -> some View {
+        _EventView(content: self, onAppear: action)
     }
 
     func cornerRadius(_ radius: Double) -> some View {
