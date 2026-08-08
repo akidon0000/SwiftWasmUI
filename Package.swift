@@ -2,11 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "WasmUI",
+    name: "SwiftWasmUI",
     platforms: [.macOS(.v13)],
     products: [
-        .library(name: "WasmUI", targets: ["WasmUI"]),
-        .executable(name: "WasmUIDemo", targets: ["WasmUIDemo"]),
+        .library(name: "SwiftWasmUI", targets: ["SwiftWasmUI"]),
+        .executable(name: "SwiftWasmUIDemo", targets: ["SwiftWasmUIDemo"]),
     ],
     dependencies: [
         // Web/main.js が読み込むランタイム (javascript-kit-swift) とバージョンを揃えること
@@ -14,14 +14,14 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "WasmUI",
+            name: "SwiftWasmUI",
             dependencies: [
                 .product(name: "JavaScriptKit", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
             ]
         ),
         .executableTarget(
-            name: "WasmUIDemo",
-            dependencies: ["WasmUI"]
+            name: "SwiftWasmUIDemo",
+            dependencies: ["SwiftWasmUI"]
         ),
     ]
 )

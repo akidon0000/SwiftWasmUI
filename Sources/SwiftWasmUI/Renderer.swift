@@ -182,6 +182,8 @@ public extension App {
         var style = document.createElement("style")
         style.textContent = .string("""
         ._wasmui-fill > * { flex: 1 1 auto; min-height: 0; align-self: stretch; }
+        ._wasmui-zlayer { pointer-events: none; }
+        ._wasmui-zlayer > * { pointer-events: auto; }
         """)
         _ = document.head.appendChild(style)
 

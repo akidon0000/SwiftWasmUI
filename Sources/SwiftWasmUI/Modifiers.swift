@@ -24,9 +24,10 @@ public struct Color: _PrimitiveView, _DOMPrimitive {
     public static let white = Color(css: "#fff")
 
     func render(_ ctx: RenderContext) {
+        // background ショートハンドなので linear-gradient(...) 等もそのまま使える
         _ = DOM.element(
             "div",
-            css: "background-color: \(css); width: 100%; height: 100%; flex: 1 1 auto; align-self: stretch;",
+            css: "background: \(css); width: 100%; height: 100%; flex: 1 1 auto; align-self: stretch;",
             in: ctx.parent
         )
     }
@@ -65,6 +66,12 @@ public extension View {
         _StyledView(content: self, css: "padding: \(value)px;")
     }
 
+    func padding(
+        top: Double = 0, leading: Double = 0, bottom: Double = 0, trailing: Double = 0
+    ) -> some View {
+        _StyledView(content: self, css: "padding: \(top)px \(trailing)px \(bottom)px \(leading)px;")
+    }
+
     func font(_ font: Font) -> some View {
         _StyledView(content: self, css: font.css)
     }
@@ -77,7 +84,26 @@ public extension View {
     func background(_ color: Color) -> some View {
         _StyledView(
             content: self,
-            css: "background-color: \(color.css); width: 100%; box-sizing: border-box;"
+            css: "background: \(color.css); width: 100%; box-sizing: border-box;"
+        )
+    }
+
+    /// iOS 26 の Liquid Glass 風マテリアル。
+    /// backdrop-filter のぼかし + 半透明背景 + 上端ハイライトで近似する。
+    func glassEffect(cornerRadius: Double = 28) -> some View {
+        _StyledView(
+            content: self,
+            css: """
+            background: rgba(255, 255, 255, 0.55);
+            -webkit-backdrop-filter: blur(24px) saturate(1.8);
+            backdrop-filter: blur(24px) saturate(1.8);
+            border-radius: \(cornerRadius)px;
+            border: 0.5px solid rgba(255, 255, 255, 0.7);
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            overflow: hidden;
+            """
         )
     }
 

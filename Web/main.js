@@ -1,4 +1,4 @@
-// WasmUI デモ用ブートストラップ(JavaScriptKit 0.19.2 ランタイム + WASI shim)
+// SwiftWasmUI デモ用ブートストラップ(JavaScriptKit 0.19.2 ランタイム + WASI shim)
 import { SwiftRuntime } from "https://cdn.jsdelivr.net/npm/javascript-kit-swift@0.19.2/Runtime/lib/index.mjs";
 import {
   WASI,
@@ -15,7 +15,7 @@ const wasi = new WASI([], [], [
 ]);
 
 // 開発用: ブラウザキャッシュで古い wasm を掴まないようにする
-const response = await fetch(`./WasmUIDemo.wasm?t=${Date.now()}`);
+const response = await fetch(`./SwiftWasmUIDemo.wasm?t=${Date.now()}`);
 const bytes = await response.arrayBuffer();
 const { instance } = await WebAssembly.instantiate(bytes, {
   wasi_snapshot_preview1: wasi.wasiImport,

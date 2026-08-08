@@ -16,6 +16,29 @@ public struct Text: _PrimitiveView, _DOMPrimitive {
     }
 }
 
+// MARK: - Image
+
+/// SF Symbols 互換の API で Framework7 Icons(MIT)のグリフを描画する。
+/// SF Symbols 名のドットをアンダースコアに変換する(例: "chevron.right" → "chevron_right")。
+/// SF Symbols 本体は Apple プラットフォーム外で使えないため、フォントは同梱しない。
+public struct Image: _PrimitiveView, _DOMPrimitive {
+    let systemName: String
+
+    public init(systemName: String) {
+        self.systemName = systemName
+    }
+
+    func render(_ ctx: RenderContext) {
+        let el = DOM.element(
+            "i",
+            css: "font-size: inherit; line-height: 1; vertical-align: middle;",
+            className: "f7-icons",
+            in: ctx.parent
+        )
+        el.textContent = .string(String(systemName.map { $0 == "." ? "_" : $0 }))
+    }
+}
+
 // MARK: - Button
 
 public struct Button: _PrimitiveView, _DOMPrimitive {
@@ -117,6 +140,51 @@ public struct HStack: _PrimitiveView, _DOMPrimitive {
             in: ctx.parent
         )
         ctx.walkChild(content, into: el, index: 0)
+    }
+}
+
+/// 子を同じ領域に重ねる。各子は絶対配置レイヤーに包まれ、alignment で寄せる。
+/// レイヤー自体はクリックを透過し、子要素だけが受ける(._wasmui-zlayer)。
+public struct ZStack: _PrimitiveView, _DOMPrimitive {
+    public enum Alignment {
+        case top, center, bottom
+
+        var css: String {
+            switch self {
+            case .top: "flex-start"
+            case .center: "center"
+            case .bottom: "flex-end"
+            }
+        }
+    }
+
+    let alignment: Alignment
+    let content: any View
+
+    public init(alignment: Alignment = .center, @ViewBuilder content: () -> some View) {
+        self.alignment = alignment
+        self.content = content()
+    }
+
+    func render(_ ctx: RenderContext) {
+        let el = DOM.element(
+            "div",
+            css: "position: relative; flex: 1 1 auto; align-self: stretch; min-height: 0;",
+            in: ctx.parent
+        )
+        for (i, child) in DOM.flatten(content).enumerated() {
+            let layer = DOM.element(
+                "div",
+                css: """
+                position: absolute; inset: 0;
+                display: flex; flex-direction: column;
+                align-items: center; justify-content: \(alignment.css);
+                """,
+                className: "_wasmui-zlayer",
+                in: el
+            )
+            ctx.walkChild(child, into: layer, index: i)
+        }
     }
 }
 

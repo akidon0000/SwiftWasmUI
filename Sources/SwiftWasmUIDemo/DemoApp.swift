@@ -1,5 +1,5 @@
 #if os(WASI)
-import WasmUI
+import SwiftWasmUI
 
 @main
 struct DemoApp: App {
@@ -12,8 +12,9 @@ struct RootView: View {
     @State var tab = 0
 
     var body: some View {
-        VStack(spacing: 0) {
-            NavigationBarView(title: tab == 0 ? "Counter" : "Todo")
+        ZStack(alignment: .center) {
+            // ガラスの下に透けるカラフルな背景
+            Color(css: "linear-gradient(160deg, #dbe7ff 0%, #f4e3ff 45%, #ffe9f0 100%)")
             VStack(spacing: 0) {
                 if tab == 0 {
                     CounterView()
@@ -21,32 +22,30 @@ struct RootView: View {
                     TodoView()
                 }
             }
-            .frame(maxHeight: .infinity)
+            .padding(top: 72, bottom: 110)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            NavigationBarView(title: tab == 0 ? "Counter" : "Todo")
             TabBarView(selection: $tab)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
-// MARK: - iOS 風クローム(WasmUI 製)
+// MARK: - iOS 26 風 Liquid Glass クローム(SwiftWasmUI 製)
 
 struct NavigationBarView: View {
     let title: String
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text(title)
-                .font(.headline)
-                .padding(14)
-            Hairline()
+        ZStack(alignment: .top) {
+            VStack(spacing: 0) {
+                Text(title)
+                    .font(.headline)
+                    .padding(10)
+            }
+            .glassEffect(cornerRadius: 22)
+            .padding(14)
         }
-        .background(Color(white: 0.97))
-    }
-}
-
-struct Hairline: View {
-    var body: some View {
-        Color(white: 0.82).frame(height: 1, maxWidth: .infinity)
     }
 }
 
@@ -54,28 +53,27 @@ struct TabBarView: View {
     let selection: Binding<Int>
 
     var body: some View {
-        VStack(spacing: 0) {
-            Hairline()
-            HStack {
-                Spacer()
-                tabButton("🔢", "Counter", index: 0)
-                Spacer()
-                tabButton("📋", "Todo", index: 1)
-                Spacer()
+        ZStack(alignment: .bottom) {
+            HStack(spacing: 0) {
+                tabButton("number", "Counter", index: 0)
+                tabButton("list.bullet", "Todo", index: 1)
             }
-            .padding(8)
+            .glassEffect(cornerRadius: 32)
+            .padding(18)
         }
-        .background(Color(white: 0.97))
     }
 
     func tabButton(_ icon: String, _ title: String, index: Int) -> some View {
         let selection = selection
         return VStack(spacing: 2) {
-            Text(icon)
+            Image(systemName: icon)
+                .font(.title)
             Button(title) { selection.wrappedValue = index }
                 .font(.caption)
         }
         .foregroundColor(selection.wrappedValue == index ? .blue : .gray)
+        .padding(10)
+        .frame(width: 96)
     }
 }
 
@@ -86,7 +84,7 @@ struct CounterView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("WasmUI (自作フレームワーク)")
+            Text("SwiftWasmUI (自作フレームワーク)")
                 .font(.title)
             Text("Count: \(count)")
             Button("Increment") {
@@ -141,9 +139,9 @@ struct TodoView: View {
 
 #else
 @main
-enum WasmUIDemoStub {
+enum SwiftWasmUIDemoStub {
     static func main() {
-        print("WasmUIDemo is a Wasm-only executable. Build with --swift-sdk <wasm SDK>.")
+        print("SwiftWasmUIDemo is a Wasm-only executable. Build with --swift-sdk <wasm SDK>.")
     }
 }
 #endif

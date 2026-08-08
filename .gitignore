@@ -11,3 +11,4 @@ Web/*.wasm
 # Editors
 .vscode/
 .idea/
+.serena/

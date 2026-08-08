@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WasmUI Demo</title>
+  <title>SwiftWasmUI Demo</title>
+  <!-- Image(systemName:) 用のアイコンフォント(Framework7 Icons, MIT) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7-icons@5.0.5/css/framework7-icons.css">
   <style>
     html {
       background: #e5e5ea;
@@ -20,7 +22,7 @@
       overflow: hidden;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     }
-    /* WasmUI のルート要素はこの中に描画される(flex 前提) */
+    /* SwiftWasmUI のルート要素はこの中に描画される(flex 前提) */
     #app {
       height: 100%;
       display: flex;
@@ -32,6 +34,6 @@
 </head>
 <body>
   <div id="app"></div>
-  <script type="module" src="./wasmui.js"></script>
+  <script type="module" src="./main.js"></script>
 </body>
 </html>
