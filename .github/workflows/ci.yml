@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swiftwasm/setup-swiftwasm@v2
+        id: swiftwasm
+        with:
+          target: wasm32-unknown-wasip1
+      - name: Build demo
+        run: bash scripts/build-web.sh
+        env:
+          SWIFT_WASM_SDK: ${{ steps.swiftwasm.outputs.swift-sdk-id }}
