@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Generated artifacts
+Web/*.wasm
+
+# Editors
+.vscode/
+.idea/

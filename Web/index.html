@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WasmUI Demo</title>
+  <style>
+    html {
+      background: #e5e5ea;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", sans-serif;
+      color: #000;
+    }
+    body {
+      width: 390px;
+      height: 844px;
+      margin: 24px auto;
+      background: #fff;
+      border: 1px solid #c7c7cc;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+    /* WasmUI のルート要素はこの中に描画される(flex 前提) */
+    #app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #app * { box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="./wasmui.js"></script>
+</body>
+</html>
