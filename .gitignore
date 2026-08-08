@@ -12,3 +12,4 @@ Web/*.wasm
 .vscode/
 .idea/
 .serena/
+iOSDemo/*.app/
