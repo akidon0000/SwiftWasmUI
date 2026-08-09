@@ -6,7 +6,12 @@ import SwiftUI
 struct DemoApp: App {
     var body: some Scene {
         WindowGroup {
-            RootView()
+            // -screen <id> 付きで起動すると API 比較カタログの単一画面を表示する
+            if let id = Catalog.currentScreenID {
+                CatalogRoot(id: id)
+            } else {
+                RootView()
+            }
         }
     }
 }

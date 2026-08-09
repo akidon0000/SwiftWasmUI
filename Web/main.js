@@ -7,6 +7,23 @@ import {
   ConsoleStdout,
 } from "https://cdn.jsdelivr.net/npm/@bjorn3/browser_wasi_shim@0.3.0/+esm";
 
+// カタログモード(#text 等): iPhone 風フレームを外して素の 390x844 で表示する
+// (スクリーンショット比較用に位置を確定させる)。OS がダークモードでも
+// 比較写真はライト基準にしたいので、ダーク時のガラス配色を打ち消す。
+if (location.hash) {
+  document.body.style.cssText = "margin: 0; border: none; border-radius: 0; box-shadow: none;";
+  const style = document.createElement("style");
+  style.textContent = `@media (prefers-color-scheme: dark) {
+    ._wasmui-glass {
+      background: rgba(255, 255, 255, 0.55) !important;
+      border-color: rgba(255, 255, 255, 0.7) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    }
+  }`;
+  document.head.appendChild(style);
+}
+
 const swift = new SwiftRuntime();
 const wasi = new WASI([], [], [
   new OpenFile(new File([])), // stdin

@@ -4,7 +4,12 @@ import SwiftWasmUI
 @main
 struct DemoApp: App {
     var body: some View {
-        RootView()
+        // #text 等のハッシュ付きで開くと API 比較カタログの単一画面を表示する
+        if let id = Catalog.currentScreenID {
+            CatalogRoot(id: id)
+        } else {
+            RootView()
+        }
     }
 }
 
