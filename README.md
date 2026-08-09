@@ -92,7 +92,10 @@ This is a research project, not a production framework.
   (a full re-render would recreate the input and drop focus)
 - No animations, gestures, environment values, or navigation — yet
 
-See [ROADMAP.md](ROADMAP.md) for what's coming next.
+See [ROADMAP.md](ROADMAP.md) for what's coming next, and
+[docs/api-comparison.md](docs/api-comparison.md) for side-by-side screenshots
+of every implemented API rendered by SwiftWasmUI (browser) and SwiftUI (iPhone)
+from identical code.
 
 ## Contributing
 
